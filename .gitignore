@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+**/node_modules/
+.codegraph/
+.vs/
+.idea/
+android/.gradle/
+android/local.properties
+publish/
+backend/VietCalendar.Api/.env
+backend/VietCalendar.Api/appsettings.Production.json
+backend/VietCalendar.Api/run-local.local.ps1
+MiravaMobile/.env.local
+ios/*.xcodeproj/
+ios/build/
+*.xcuserstate
+.DS_Store
