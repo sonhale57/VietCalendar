@@ -1,3 +1,5 @@
+import type { LunarCalendarAdviceDocument } from '@/services/account-api';
+
 export const CAN_LIST = ['Giáp', 'Ất', 'Bính', 'Đinh', 'Mậu', 'Kỷ', 'Canh', 'Tân', 'Nhâm', 'Quý'] as const;
 export const CHI_LIST = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'] as const;
 
@@ -99,9 +101,12 @@ export interface LongevityBadgeInfo {
   thapTraiAdvice: string | null;
   isMonthlyTaboo: boolean;
   monthlyTabooNote: string | null;
+  lunarMonthName: string | null;
+  lunarMonthTheme: string | null;
+  fullMonthAdvisory: string | null;
   seasonalNotes: string[];
   isDaiKy: boolean;
-  daiKyLevel: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'NONE';
+  daiKyLevel: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
   daiKyBadge: string | null;
   daiKyReason: string | null;
   daiKyAdvice: string;
@@ -266,19 +271,31 @@ export function evaluateLongevityBadges(
   _isLeapMonth = false,
   isMonthTotal29Days = false,
   seasonalNotes: string[] = [],
+  lunarAdvice?: LunarCalendarAdviceDocument | null,
 ): LongevityBadgeInfo {
-  const thapTraiDays = isMonthTotal29Days
-    ? [1, 8, 14, 15, 18, 23, 24, 27, 28, 29]
-    : [1, 8, 14, 15, 18, 23, 24, 28, 29, 30];
+  const monthAdvice = lunarAdvice?.months.find((month) => month.month === lunarMonth);
+  const dailyAdvice = monthAdvice?.tkbg_days.find((entry) => entry.day === lunarDay);
+  const thapTraiDays = lunarAdvice
+    ? isMonthTotal29Days
+      ? lunarAdvice.metadata.short_month_rule.short_month_days
+      : lunarAdvice.metadata.short_month_rule.base_days
+    : isMonthTotal29Days
+      ? [1, 8, 14, 15, 18, 23, 24, 27, 28, 29]
+      : [1, 8, 14, 15, 18, 23, 24, 28, 29, 30];
   const isThapTrai = thapTraiDays.includes(lunarDay);
-  const thapTraiBadge = isThapTrai ? 'Ngày Thập Trai' : null;
+  const thapTraiTemplate = lunarAdvice?.common_templates.THAP_TRAI;
+  const thapTraiBadge = isThapTrai ? thapTraiTemplate?.badge ?? 'Ngày Thập Trai' : null;
   const thapTraiAdvice = isThapTrai
-    ? 'Theo thực hành Phật giáo, ngày Thập Trai là dịp để tùy tâm ăn chay, phóng sinh và nuôi dưỡng lòng từ bi.'
+    ? thapTraiTemplate?.detail ?? 'Theo thực hành Phật giáo, ngày Thập Trai là dịp để tùy tâm ăn chay, phóng sinh và nuôi dưỡng lòng từ bi.'
     : null;
-  const isMonthlyTaboo = MONTHLY_TABOO_DAYS[lunarMonth]?.includes(lunarDay) ?? false;
+  const isMonthlyTaboo = lunarAdvice
+    ? dailyAdvice !== undefined
+    : MONTHLY_TABOO_DAYS[lunarMonth]?.includes(lunarDay) ?? false;
   const occasion = MONTHLY_TABOO_OCCASIONS[`${lunarMonth}-${lunarDay}`];
   const monthlyTabooNote = isMonthlyTaboo
-    ? `Ngày ${lunarDay} tháng ${lunarMonth} âm lịch nằm trong danh sách ngày kiêng kỵ đặc biệt${occasion ? ` (${occasion})` : ''} được cung cấp. Đây là ghi chép phong tục/tín ngưỡng, không phải dự báo y tế.`
+    ? dailyAdvice
+      ? 'Ghi chú theo tư liệu Thọ Khang Bảo Giám; không phải khuyến nghị y tế.'
+      : `Ngày ${lunarDay} tháng ${lunarMonth} âm lịch nằm trong danh sách ngày kiêng kỵ đặc biệt${occasion ? ` (${occasion})` : ''} được cung cấp. Đây là ghi chép phong tục/tín ngưỡng, không phải dự báo y tế.`
     : null;
   const normalizedSeasonalNotes = [...new Set(seasonalNotes)];
   const additionalReasons = [
@@ -293,10 +310,12 @@ export function evaluateLongevityBadges(
     daiKyAdvice: string,
   ): LongevityBadgeInfo {
     const reasons = [...(daiKyReason ? [daiKyReason] : []), ...additionalReasons];
-    const levelWeight = { NONE: 0, MEDIUM: 1, HIGH: 2, CRITICAL: 3 } as const;
-    const minimumLevel: LongevityBadgeInfo['daiKyLevel'] = normalizedSeasonalNotes.length > 0
-      ? 'HIGH'
-      : isMonthlyTaboo ? 'MEDIUM' : 'NONE';
+    const levelWeight = { NONE: 0, LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 } as const;
+    const minimumLevel: LongevityBadgeInfo['daiKyLevel'] = dailyAdvice
+      ? dailyAdvice.level
+      : normalizedSeasonalNotes.length > 0
+        ? 'HIGH'
+        : isMonthlyTaboo ? 'MEDIUM' : 'NONE';
     const level = levelWeight[daiKyLevel] >= levelWeight[minimumLevel] ? daiKyLevel : minimumLevel;
     return {
       isThapTrai,
@@ -304,6 +323,9 @@ export function evaluateLongevityBadges(
       thapTraiAdvice,
       isMonthlyTaboo,
       monthlyTabooNote,
+      lunarMonthName: monthAdvice?.month_name ?? null,
+      lunarMonthTheme: monthAdvice?.month_theme ?? null,
+      fullMonthAdvisory: monthAdvice?.full_month_advisory ?? null,
       seasonalNotes: normalizedSeasonalNotes,
       isDaiKy: level !== 'NONE',
       daiKyLevel: level,
@@ -315,6 +337,34 @@ export function evaluateLongevityBadges(
       daiKyReason: reasons.length > 0 ? reasons.join('\n') : null,
       daiKyAdvice,
     };
+  }
+
+  if (lunarAdvice) {
+    const sourceBasedAdvice = dailyAdvice
+      ? `Tư liệu Thọ Khang Bảo Giám ghi chú: ${dailyAdvice.title}. Có thể xem đây là lời nhắc sống điều độ và tôn trọng nhau; các dự báo về bệnh tật, sinh nở hoặc tuổi thọ là quan niệm lịch sử, không phải kết luận y khoa.`
+      : 'Tư liệu Thọ Khang Bảo Giám khuyến khích tự chủ và điều độ. Trong đời sống hiện đại, hãy ưu tiên sự đồng thuận, nghỉ ngơi khi mệt hoặc đang bệnh; ngày âm lịch không dự báo tình trạng sức khỏe.';
+    if (dailyAdvice) {
+      return makeResult(
+        dailyAdvice.level,
+        dailyAdvice.title,
+        null,
+        sourceBasedAdvice,
+      );
+    }
+    if (normalizedSeasonalNotes.length > 0) {
+      return makeResult(
+        'NONE',
+        null,
+        null,
+        `${sourceBasedAdvice} ${lunarAdvice.common_templates.TKBG_GENERAL.short_advice}`,
+      );
+    }
+    return makeResult(
+      'NONE',
+      null,
+      null,
+      `${sourceBasedAdvice} ${lunarAdvice.common_templates.TKBG_GENERAL.short_advice}`,
+    );
   }
 
   const cuuDocDays = [5, 6, 7, 15, 16, 17, 25, 26, 27];
@@ -379,8 +429,12 @@ export function evaluateLongevityBadges(
   return makeResult('NONE', null, null, 'Sinh hoạt và nghỉ ngơi điều độ theo nhịp sống của bản thân.');
 }
 
-export function evaluateThoKhang(lunarDay: number, lunarMonth: number): ThoKhangRule {
-  const longevity = evaluateLongevityBadges(lunarDay, lunarMonth);
+export function evaluateThoKhang(
+  lunarDay: number,
+  lunarMonth: number,
+  lunarAdvice?: LunarCalendarAdviceDocument | null,
+): ThoKhangRule {
+  const longevity = evaluateLongevityBadges(lunarDay, lunarMonth, false, false, [], lunarAdvice);
   return {
     severity: longevity.daiKyLevel,
     badge: longevity.daiKyBadge ?? 'Bình Hòa',
@@ -405,7 +459,11 @@ export function getDestinyUserProfile(
   return { birthSolarDay, birthSolarMonth, birthSolarYear, birthLunarYear };
 }
 
-export function calculateDailyEvaluation(target: DayTarget, user: UserProfile | null): DailyEvaluation {
+export function calculateDailyEvaluation(
+  target: DayTarget,
+  user: UserProfile | null,
+  lunarAdvice?: LunarCalendarAdviceDocument | null,
+): DailyEvaluation {
   const dayCanChi = getCanChiDay(target.solarDay, target.solarMonth, target.solarYear);
   const longevity = evaluateLongevityBadges(
     target.lunarDay,
@@ -413,6 +471,7 @@ export function calculateDailyEvaluation(target: DayTarget, user: UserProfile | 
     target.isLeapMonth ?? false,
     target.isMonthTotal29Days ?? false,
     target.seasonalAvoidanceNotes ?? [],
+    lunarAdvice,
   );
   const hours = get12Hours(dayCanChi.chiIndex);
   const isHoangDao = target.isHoangDao ?? true;

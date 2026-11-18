@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 import * as SecureStore from 'expo-secure-store';
 import {
   createContext,
@@ -10,15 +11,24 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 import {
   AccountApiError,
   addEmailAllowlistRule as addEmailAllowlistRuleRequest,
+  createCalendarEvent as createCalendarEventRequest,
+  createCalendarEventShareLink as createCalendarEventShareLinkRequest,
   changePassword as changePasswordRequest,
+  deleteCalendarEvent as deleteCalendarEventRequest,
+  getCalendarEvents as getCalendarEventsRequest,
   getCurrentAccount,
   getEmailAllowlist as getEmailAllowlistRequest,
   getGoogleCalendarStatus,
+  getLunarCalendarAdvice as getLunarCalendarAdviceRequest,
+  parseLunarCalendarAdvice,
+  getSharedCalendarEvent as getSharedCalendarEventRequest,
+  importSharedCalendarEvent as importSharedCalendarEventRequest,
+  inviteCalendarEventUser as inviteCalendarEventUserRequest,
   linkGoogleCalendar as linkGoogleCalendarRequest,
   registerWithEmail as registerWithEmailRequest,
   removeEmailAllowlistRule as removeEmailAllowlistRuleRequest,
@@ -30,11 +40,21 @@ import {
   signInWithGoogleToken,
   signOutAccount,
   syncGoogleCalendar as syncGoogleCalendarRequest,
+  updateCalendarEvent as updateCalendarEventRequest,
   verifyEmail as verifyEmailRequest,
+  type CalendarEvent,
+  type CalendarEventDraft,
   type EmailAllowlistRule,
   type GoogleCalendarEvent,
   type GoogleCalendarSyncRequest,
+  type LunarCalendarAdviceDocument,
+  type SharedCalendarEvent,
 } from '@/services/account-api';
+import {
+  reconcileCalendarNotifications,
+  requestCalendarNotificationPermission,
+} from '@/services/calendar-notifications';
+import { calendarThemes } from '@/constants/calendar-themes';
 
 export const fastingMode = 'Thập trai' as const;
 export type FastingMode = typeof fastingMode;
@@ -60,6 +80,8 @@ const AUTH_TOKEN_STORAGE_KEY = '@lich-viet/google-id-token';
 const AUTH_USER_STORAGE_KEY = '@lich-viet/google-user';
 const AUTH_SETTINGS_OWNER_KEY = '@lich-viet/user-settings-owner';
 const WEB_AUTH_STATE_KEY = '@lich-viet/google-web-auth';
+const GUEST_EVENTS_STORAGE_KEY = '@lich-viet/calendar-events:guest';
+const LUNAR_ADVICE_STORAGE_KEY = '@lich-viet/lunar-calendar-advice';
 
 async function getStoredAuthToken() {
   if (Platform.OS === 'web') {
@@ -139,6 +161,24 @@ type CalendarSettings = CalendarUserSettings & {
   googleCalendarError: string | null;
   connectGoogleCalendar: (authorization: { code: string; codeVerifier: string; redirectUri: string; clientId: string }) => Promise<void>;
   syncGoogleCalendar: (request: GoogleCalendarSyncRequest) => Promise<GoogleCalendarEvent[]>;
+  calendarEvents: CalendarEvent[];
+  calendarEventsReady: boolean;
+  calendarEventsError: string | null;
+  lunarCalendarAdvice: LunarCalendarAdviceDocument | null;
+  lunarCalendarAdviceError: string | null;
+  calendarNotificationWarning: string | null;
+  createCalendarEvent: (event: CalendarEventDraft) => Promise<CalendarEvent>;
+  updateCalendarEvent: (
+    id: string,
+    event: CalendarEventDraft,
+    updateSharedCopies: boolean,
+  ) => Promise<CalendarEvent>;
+  deleteCalendarEvent: (id: string) => Promise<void>;
+  createCalendarEventShareLink: (id: string) => Promise<string>;
+  inviteCalendarEventUser: (id: string, identifier: string) => Promise<void>;
+  getSharedCalendarEvent: (token: string) => Promise<SharedCalendarEvent>;
+  addSharedEventToCalendar: (token: string, preview: SharedCalendarEvent) => Promise<CalendarEvent>;
+  requestCalendarNotifications: () => Promise<boolean>;
   signInWithGoogle: (idToken: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -150,6 +190,13 @@ function getAccountErrorMessage(error: unknown, fallback: string) {
     return 'Không kết nối được máy chủ tài khoản. Hãy kiểm tra API đang chạy và EXPO_PUBLIC_API_BASE_URL.';
   }
   return error instanceof Error ? error.message : fallback;
+}
+
+function getLunarAdviceErrorMessage(error: unknown) {
+  if (error instanceof TypeError) {
+    return 'Không kết nối được máy chủ dữ liệu lịch âm. Hãy kiểm tra API đang chạy và EXPO_PUBLIC_API_BASE_URL.';
+  }
+  return error instanceof Error ? error.message : 'Không tải được dữ liệu Thập Trai và Thọ Khang từ máy chủ.';
 }
 
 function settingsFromUnknown(value: unknown): Partial<CalendarUserSettings> {
@@ -183,7 +230,7 @@ function settingsFromUnknown(value: unknown): Partial<CalendarUserSettings> {
     ...(typeof candidate.themeIndex === 'number' &&
       Number.isInteger(candidate.themeIndex) &&
       candidate.themeIndex >= 0 &&
-      candidate.themeIndex <= 3
+      candidate.themeIndex < calendarThemes.length
       ? { themeIndex: candidate.themeIndex }
       : {}),
     ...(candidate.navigationStyle === 'mono' || candidate.navigationStyle === 'image'
@@ -249,6 +296,48 @@ function parseGoogleAccount(value: string | null): GoogleAccount | null {
   }
 }
 
+function parseCalendarEvents(value: string | null): CalendarEvent[] {
+  if (!value) return [];
+  const parsed: unknown = JSON.parse(value);
+  if (!Array.isArray(parsed) || !parsed.every(isCalendarEvent)) {
+    throw new Error('Dữ liệu sự kiện đã lưu không đúng định dạng.');
+  }
+  return parsed.map((event) => ({ ...event, countdown: event.countdown === true }));
+}
+
+function isCalendarEvent(value: unknown): value is CalendarEvent {
+  if (!value || typeof value !== 'object') return false;
+  const event = value as Partial<CalendarEvent>;
+  return typeof event.id === 'string' &&
+    typeof event.title === 'string' &&
+    (event.description === null || typeof event.description === 'string') &&
+    (event.kind === 'event' || event.kind === 'reminder') &&
+    (event.calendarType === 'solar' || event.calendarType === 'lunar') &&
+    Number.isInteger(event.year) &&
+    Number.isInteger(event.month) &&
+    Number.isInteger(event.day) &&
+    (event.recurrence === 'once' || event.recurrence === 'yearly') &&
+    (event.label === null || typeof event.label === 'string') &&
+    (event.countdown === undefined || typeof event.countdown === 'boolean') &&
+    (event.sourceEventId === null || typeof event.sourceEventId === 'string') &&
+    typeof event.isSharedCopy === 'boolean';
+}
+
+function toCalendarEventDraft(event: CalendarEvent): CalendarEventDraft {
+  return {
+    title: event.title,
+    description: event.description,
+    kind: event.kind,
+    calendarType: event.calendarType,
+    year: event.year,
+    month: event.month,
+    day: event.day,
+    recurrence: event.recurrence,
+    label: event.label,
+    countdown: event.countdown === true,
+  };
+}
+
 export function CalendarSettingsProvider({ children }: { children: ReactNode }) {
   const [themeIndex, setThemeIndex] = useState(0);
   const [navigationStyle, setNavigationStyle] = useState<'mono' | 'image'>('mono');
@@ -276,6 +365,20 @@ export function CalendarSettingsProvider({ children }: { children: ReactNode }) 
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
   const [googleCalendarError, setGoogleCalendarError] = useState<string | null>(null);
   const [settingsReady, setSettingsReady] = useState(false);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [calendarEventsOwner, setCalendarEventsOwner] = useState<string | null | undefined>();
+  const [calendarEventsError, setCalendarEventsError] = useState<string | null>(null);
+  const [lunarCalendarAdvice, setLunarCalendarAdvice] = useState<LunarCalendarAdviceDocument | null>(null);
+  const [lunarCalendarAdviceError, setLunarCalendarAdviceError] = useState<string | null>(null);
+  const [calendarNotificationWarning, setCalendarNotificationWarning] = useState<string | null>(null);
+  const eventLoadGeneration = useRef(0);
+  const currentCalendarEventsOwner = authToken && authUser ? authUser.subject : null;
+  const calendarEventsReady = calendarEventsOwner === currentCalendarEventsOwner;
+  const visibleCalendarEvents = useMemo(
+    () => calendarEventsReady ? calendarEvents : [],
+    [calendarEventsReady, calendarEvents],
+  );
+  const visibleCalendarEventsError = calendarEventsReady ? calendarEventsError : null;
 
   const settings = useMemo<CalendarUserSettings>(() => ({
     profileName,
@@ -405,6 +508,54 @@ export function CalendarSettingsProvider({ children }: { children: ReactNode }) 
   }, [settingsReady, settings]);
 
   useEffect(() => {
+    let active = true;
+
+    async function loadLunarCalendarAdvice() {
+      try {
+        const cached = await AsyncStorage.getItem(LUNAR_ADVICE_STORAGE_KEY);
+        if (cached) {
+          const parsed = parseLunarCalendarAdvice(JSON.parse(cached) as unknown);
+          if (active) setLunarCalendarAdvice(parsed);
+        }
+      } catch {
+        if (active) {
+          setLunarCalendarAdviceError('Không đọc được dữ liệu lịch âm đã lưu; đang tải dữ liệu mới từ máy chủ.');
+        }
+        try {
+          await AsyncStorage.removeItem(LUNAR_ADVICE_STORAGE_KEY);
+        } catch {
+          if (active) {
+            setLunarCalendarAdviceError('Bản lịch âm đã lưu không hợp lệ và không thể xóa khỏi thiết bị.');
+          }
+        }
+      }
+
+      try {
+        const latest = await getLunarCalendarAdviceRequest();
+        if (!active) return;
+        setLunarCalendarAdvice(latest);
+        setLunarCalendarAdviceError(null);
+        try {
+          await AsyncStorage.setItem(LUNAR_ADVICE_STORAGE_KEY, JSON.stringify(latest));
+        } catch {
+          if (active) {
+            setLunarCalendarAdviceError('Đã tải dữ liệu lịch âm nhưng không thể lưu bản dùng ngoại tuyến.');
+          }
+        }
+      } catch (error) {
+        if (active) {
+          setLunarCalendarAdviceError(getLunarAdviceErrorMessage(error));
+        }
+      }
+    }
+
+    void loadLunarCalendarAdvice();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!settingsReady) return;
     let active = true;
 
@@ -459,6 +610,88 @@ export function CalendarSettingsProvider({ children }: { children: ReactNode }) 
       active = false;
     };
   }, [settingsReady, acceptAuthenticatedAccount]);
+
+  useEffect(() => {
+    if (!settingsReady || !authReady) return;
+    const generation = ++eventLoadGeneration.current;
+    const owner = currentCalendarEventsOwner;
+    let active = true;
+
+    async function loadCalendarEvents() {
+      try {
+        const guestEvents = parseCalendarEvents(await AsyncStorage.getItem(GUEST_EVENTS_STORAGE_KEY));
+        if (authToken) {
+          let accountEvents = await getCalendarEventsRequest(authToken);
+          const knownIds = new Set(accountEvents.map((event) => event.id));
+          for (const guestEvent of guestEvents) {
+            if (knownIds.has(guestEvent.id)) continue;
+            await createCalendarEventRequest(authToken, {
+              ...toCalendarEventDraft(guestEvent),
+              id: guestEvent.id,
+            });
+          }
+          if (guestEvents.some((event) => !knownIds.has(event.id))) {
+            accountEvents = await getCalendarEventsRequest(authToken);
+          }
+          if (active && generation === eventLoadGeneration.current) {
+            setCalendarEvents(accountEvents);
+            setCalendarEventsError(null);
+          }
+        } else if (active && generation === eventLoadGeneration.current) {
+          setCalendarEvents(guestEvents);
+          setCalendarEventsError(null);
+        }
+      } catch (error) {
+        if (active && generation === eventLoadGeneration.current) {
+          setCalendarEvents([]);
+          setCalendarEventsError(
+            error instanceof Error ? error.message : 'Không tải được sự kiện đã lưu.',
+          );
+        }
+      } finally {
+        if (active && generation === eventLoadGeneration.current) {
+          setCalendarEventsOwner(owner);
+        }
+      }
+    }
+
+    void loadCalendarEvents();
+    return () => {
+      active = false;
+    };
+  }, [authReady, authToken, authUser?.subject, currentCalendarEventsOwner, settingsReady]);
+
+  useEffect(() => {
+    if (!calendarEventsReady) return;
+    let active = true;
+    const synchronizeNotifications = () => {
+      reconcileCalendarNotifications(visibleCalendarEvents)
+        .then((skipped) => {
+          if (active) {
+            setCalendarNotificationWarning(
+              skipped > 0
+                ? `Đang vượt giới hạn notification của thiết bị; ${skipped} mốc xa nhất chưa được lên lịch.`
+                : null,
+            );
+          }
+        })
+        .catch((error: unknown) => {
+          if (active) {
+            setCalendarNotificationWarning(
+              error instanceof Error ? error.message : 'Không lập được lịch notification.',
+            );
+          }
+        });
+    };
+    synchronizeNotifications();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') synchronizeNotifications();
+    });
+    return () => {
+      active = false;
+      subscription.remove();
+    };
+  }, [visibleCalendarEvents, calendarEventsReady]);
 
   useEffect(() => {
     if (!authToken || !settingsReady) return;
@@ -647,6 +880,130 @@ export function CalendarSettingsProvider({ children }: { children: ReactNode }) 
     }
   }, [authToken]);
 
+  const createCalendarEvent = useCallback(async (event: CalendarEventDraft) => {
+    const id = Crypto.randomUUID();
+    const saved = authToken
+      ? await createCalendarEventRequest(authToken, { ...event, id })
+      : {
+          ...event,
+          id,
+          sourceEventId: null,
+          isSharedCopy: false,
+        };
+    const next = [...calendarEvents, saved];
+    if (!authToken) {
+      await AsyncStorage.setItem(GUEST_EVENTS_STORAGE_KEY, JSON.stringify(next));
+    }
+    setCalendarEvents(next);
+    setCalendarEventsError(null);
+    return saved;
+  }, [authToken, calendarEvents]);
+
+  const updateCalendarEvent = useCallback(async (
+    id: string,
+    event: CalendarEventDraft,
+    updateSharedCopies: boolean,
+  ) => {
+    if (!calendarEvents.some((item) => item.id === id)) {
+      throw new Error('Không tìm thấy sự kiện cần sửa.');
+    }
+    const saved = authToken
+      ? await updateCalendarEventRequest(authToken, id, { ...event, updateSharedCopies })
+      : {
+          ...event,
+          id,
+          sourceEventId: calendarEvents.find((item) => item.id === id)?.sourceEventId ?? null,
+          isSharedCopy: calendarEvents.find((item) => item.id === id)?.isSharedCopy ?? false,
+        };
+    const next = calendarEvents.map((item) => item.id === id ? saved : item);
+    if (!authToken) {
+      await AsyncStorage.setItem(GUEST_EVENTS_STORAGE_KEY, JSON.stringify(next));
+    }
+    setCalendarEvents(next);
+    setCalendarEventsError(null);
+    return saved;
+  }, [authToken, calendarEvents]);
+
+  const deleteCalendarEvent = useCallback(async (id: string) => {
+    if (!calendarEvents.some((item) => item.id === id)) {
+      throw new Error('Không tìm thấy sự kiện cần xóa.');
+    }
+    if (authToken) {
+      await deleteCalendarEventRequest(authToken, id);
+    }
+    const next = calendarEvents.filter((item) => item.id !== id);
+    if (!authToken) {
+      await AsyncStorage.setItem(GUEST_EVENTS_STORAGE_KEY, JSON.stringify(next));
+    }
+    setCalendarEvents(next);
+    setCalendarEventsError(null);
+  }, [authToken, calendarEvents]);
+
+  const createCalendarEventShareLink = useCallback(async (id: string) => {
+    if (!authToken) throw new Error('Hãy đăng nhập để chia sẻ sự kiện.');
+    return await createCalendarEventShareLinkRequest(authToken, id);
+  }, [authToken]);
+
+  const inviteCalendarEventUser = useCallback(async (id: string, identifier: string) => {
+    if (!authToken) throw new Error('Hãy đăng nhập để thêm người dùng vào sự kiện.');
+    await inviteCalendarEventUserRequest(authToken, id, identifier);
+    setCalendarEvents(await getCalendarEventsRequest(authToken));
+  }, [authToken]);
+
+  const getSharedCalendarEvent = useCallback(
+    async (token: string) => await getSharedCalendarEventRequest(token),
+    [],
+  );
+
+  const addSharedEventToCalendar = useCallback(async (
+    token: string,
+    preview: SharedCalendarEvent,
+  ) => {
+    if (authToken) {
+      const imported = await importSharedCalendarEventRequest(authToken, token);
+      setCalendarEvents(await getCalendarEventsRequest(authToken));
+      setCalendarEventsError(null);
+      return imported;
+    }
+
+    const existing = calendarEvents.find(
+      (event) => event.isSharedCopy && event.sourceEventId === preview.event.id,
+    );
+    if (existing) return existing;
+
+    const copy: CalendarEvent = {
+      ...toCalendarEventDraft(preview.event),
+      id: Crypto.randomUUID(),
+      sourceEventId: preview.event.id,
+      isSharedCopy: true,
+    };
+    const next = [...calendarEvents, copy];
+    await AsyncStorage.setItem(GUEST_EVENTS_STORAGE_KEY, JSON.stringify(next));
+    setCalendarEvents(next);
+    setCalendarEventsError(null);
+    return copy;
+  }, [authToken, calendarEvents]);
+
+  const requestCalendarNotifications = useCallback(async () => {
+    const granted = await requestCalendarNotificationPermission();
+    if (!granted) {
+      setCalendarNotificationWarning(
+        Platform.OS === 'web'
+          ? 'Notification sự kiện chỉ hỗ trợ trên iOS và Android.'
+          : 'Chưa được cấp quyền notification; sự kiện vẫn được lưu nhưng thiết bị sẽ không nhắc.',
+      );
+      return false;
+    }
+
+    const skipped = await reconcileCalendarNotifications(visibleCalendarEvents);
+    setCalendarNotificationWarning(
+      skipped > 0
+        ? `Đang vượt giới hạn notification của thiết bị; ${skipped} mốc xa nhất chưa được lên lịch.`
+        : null,
+    );
+    return true;
+  }, [visibleCalendarEvents]);
+
   const signOut = useCallback(async () => {
     setAuthBusy(true);
     try {
@@ -711,6 +1068,20 @@ export function CalendarSettingsProvider({ children }: { children: ReactNode }) 
       googleCalendarError,
       connectGoogleCalendar,
       syncGoogleCalendar,
+      calendarEvents: visibleCalendarEvents,
+      calendarEventsReady,
+      calendarEventsError: visibleCalendarEventsError,
+      lunarCalendarAdvice,
+      lunarCalendarAdviceError,
+      calendarNotificationWarning,
+      createCalendarEvent,
+      updateCalendarEvent,
+      deleteCalendarEvent,
+      createCalendarEventShareLink,
+      inviteCalendarEventUser,
+      getSharedCalendarEvent,
+      addSharedEventToCalendar,
+      requestCalendarNotifications,
       signInWithGoogle,
       signOut,
     }),
@@ -741,6 +1112,20 @@ export function CalendarSettingsProvider({ children }: { children: ReactNode }) 
       googleCalendarError,
       connectGoogleCalendar,
       syncGoogleCalendar,
+      visibleCalendarEvents,
+      calendarEventsReady,
+      visibleCalendarEventsError,
+      lunarCalendarAdvice,
+      lunarCalendarAdviceError,
+      calendarNotificationWarning,
+      createCalendarEvent,
+      updateCalendarEvent,
+      deleteCalendarEvent,
+      createCalendarEventShareLink,
+      inviteCalendarEventUser,
+      getSharedCalendarEvent,
+      addSharedEventToCalendar,
+      requestCalendarNotifications,
       signInWithGoogle,
       signOut,
     ],

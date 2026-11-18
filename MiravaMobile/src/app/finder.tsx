@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText as Text, AppTextInput as TextInput } from '@/components/app-text';
-import { CalendarPage, Card, CardFooter, SectionTitle, commonStyles } from '@/components/calendar-ui';
+import { CalendarPage, Card, CardFooter, ImperialButton, SectionTitle, commonStyles } from '@/components/calendar-ui';
 import { calendarThemes } from '@/constants/calendar-themes';
 import { useCalendarSettings } from '@/contexts/calendar-settings';
 import {
@@ -175,6 +175,8 @@ export default function DayFinderScreen() {
     relativeBirthDates,
     relativeBirthCalendarTypes,
     relativeGenders,
+    lunarCalendarAdvice,
+    lunarCalendarAdviceError,
   } = useCalendarSettings();
   const [jobCode, setJobCode] = useState('KHAI_TRUONG');
   const [period, setPeriod] = useState<string>(QUICK_RANGES[0].label);
@@ -240,10 +242,10 @@ export default function DayFinderScreen() {
 
   const lookupDateValue = parseDate(lookupDate);
   const dayEvaluation = lookedUp && lookupDateValue
-    ? evaluateDayForJob(lookupDateValue, jobCode, evaluationProfile)
+    ? evaluateDayForJob(lookupDateValue, jobCode, evaluationProfile, lunarCalendarAdvice)
     : null;
   const results = searched && dateRange.from && dateRange.to
-    ? findGoodDaysForJob(dateRange.from, dateRange.to, jobCode, evaluationProfile)
+    ? findGoodDaysForJob(dateRange.from, dateRange.to, jobCode, evaluationProfile, lunarCalendarAdvice)
     : [];
 
   return (
@@ -252,6 +254,9 @@ export default function DayFinderScreen() {
         <Text style={[styles.eyebrow, { color: theme.accent }]}>LỊCH VIỆT</Text>
         <Text style={[styles.title, { color: theme.text }]}>Tra ngày</Text>
         <Text style={[commonStyles.muted, { color: theme.muted }]}>Chọn cách tra cứu để xem thông tin ngày theo nhu cầu.</Text>
+        {lunarCalendarAdviceError && (
+          <Text style={[commonStyles.muted, { color: '#A15C54', marginTop: 6 }]}>{lunarCalendarAdviceError}</Text>
+        )}
       </View>
 
       <Card>
@@ -358,9 +363,11 @@ export default function DayFinderScreen() {
                 setLookedUp(false);
               }}
             />
-            <Pressable onPress={() => setLookedUp(true)} style={[styles.searchButton, { backgroundColor: theme.accent }]}>
-              <Text style={styles.searchButtonText}>{DAY_INSPECTOR_TITLE}</Text>
-            </Pressable>
+            <ImperialButton
+              title={DAY_INSPECTOR_TITLE}
+              onPress={() => setLookedUp(true)}
+              style={{ marginTop: 12 }}
+            />
             {lookedUp && !lookupDateValue && (
               <Text style={[styles.emptyMessage, { color: '#B42318' }]}>Ngày không hợp lệ. Chọn ngày trong khoảng năm 1900–2100.</Text>
             )}
@@ -524,9 +531,11 @@ export default function DayFinderScreen() {
                 />
               </View>
             )}
-            <Pressable onPress={() => setSearched(true)} style={[styles.searchButton, { backgroundColor: theme.accent }]}>
-              <Text style={styles.searchButtonText}>Tìm Ngày Tốt</Text>
-            </Pressable>
+            <ImperialButton
+              title="Tìm Ngày Tốt"
+              onPress={() => setSearched(true)}
+              style={{ marginTop: 12 }}
+            />
           </Card>
 
           {searched && (

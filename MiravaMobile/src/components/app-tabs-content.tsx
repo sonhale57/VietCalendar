@@ -17,10 +17,10 @@ import { calendarThemes } from '@/constants/calendar-themes';
 import { useCalendarSettings } from '@/contexts/calendar-settings';
 
 const tabItems = [
-  { name: 'index', href: '/', label: 'Hôm Nay', icon: 'today' },
   { name: 'calendar', href: '/calendar', label: 'Lịch', icon: 'calendar' },
-  { name: 'fasting', href: '/fasting', label: 'Bảo Thọ', icon: 'fasting' },
   { name: 'finder', href: '/finder', label: 'Tra ngày', icon: 'finder' },
+  { name: 'index', href: '/', label: 'Hôm Nay', icon: 'today' },
+  { name: 'fasting', href: '/fasting', label: 'Bảo Thọ', icon: 'fasting' },
   { name: 'profile', href: '/profile', label: 'Cá nhân', icon: 'profile' },
 ] as const;
 
@@ -52,7 +52,7 @@ export default function AppTabsContent() {
           imageUri={navigationImage}>
           {tabItems.map((item) => (
             <TabTrigger key={item.name} name={item.name} href={item.href} asChild>
-              <TabButton theme={theme} icon={item.icon} featured={item.name === 'fasting'}>{item.label}</TabButton>
+              <TabButton theme={theme} icon={item.icon} featured={item.name === 'index'}>{item.label}</TabButton>
             </TabTrigger>
           ))}
         </TabBar>

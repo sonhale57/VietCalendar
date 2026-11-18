@@ -1,0 +1,74 @@
+@baseUrl = http://localhost:5062
+@token = replace-with-session-token
+@eventId = 11111111-1111-1111-1111-111111111111
+@shareToken = replace-with-share-token
+
+### List events and reminders
+GET {{baseUrl}}/api/v1/calendar/events
+Authorization: Bearer {{token}}
+
+### Get one event
+GET {{baseUrl}}/api/v1/calendar/events/{{eventId}}
+Authorization: Bearer {{token}}
+
+### Create an event or reminder
+POST {{baseUrl}}/api/v1/calendar/events
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": "{{eventId}}",
+  "title": "Họp gia đình",
+  "description": "Bữa cơm cuối tuần",
+  "kind": "event",
+  "calendarType": "solar",
+  "year": 2026,
+  "month": 12,
+  "day": 20,
+  "recurrence": "once",
+  "label": "Quan trọng",
+  "countdown": true
+}
+
+### Update an event and ask the service to update imported copies
+PUT {{baseUrl}}/api/v1/calendar/events/{{eventId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Họp gia đình",
+  "description": "Đã đổi địa điểm",
+  "kind": "event",
+  "calendarType": "solar",
+  "year": 2026,
+  "month": 12,
+  "day": 20,
+  "recurrence": "once",
+  "label": "Quan trọng",
+  "countdown": true,
+  "updateSharedCopies": true
+}
+
+### Create a share link
+POST {{baseUrl}}/api/v1/calendar/events/{{eventId}}/share-link
+Authorization: Bearer {{token}}
+
+### Invite a registered user by email or username
+POST {{baseUrl}}/api/v1/calendar/events/{{eventId}}/invite
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "identifier": "recipient@example.com"
+}
+
+### Preview a shared event
+GET {{baseUrl}}/api/v1/shared-events/{{shareToken}}
+
+### Import a shared event into the signed-in account
+POST {{baseUrl}}/api/v1/shared-events/{{shareToken}}/import
+Authorization: Bearer {{token}}
+
+### Delete an event
+DELETE {{baseUrl}}/api/v1/calendar/events/{{eventId}}
+Authorization: Bearer {{token}}

@@ -13,4 +13,13 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\database\sqlserver-2008\*.sql">
+      <LogicalName>VietCalendar.Api.Migrations.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\json_12_thang_am_lich.json">
+      <LogicalName>VietCalendar.Api.Data.json_12_thang_am_lich.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

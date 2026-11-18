@@ -1,0 +1,289 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Dữ liệu ngày Thập Trai và ngày Tiết Dục theo Thọ Khang Bảo Giám",
+    "short_month_rule": {
+      "description": "Nếu tháng Âm lịch là tháng thiếu (chỉ có 29 ngày), cờ Thập Trai của ngày 30 sẽ tự động dời sang ngày 27.",
+      "base_days": [1, 8, 14, 15, 18, 23, 24, 28, 29, 30],
+      "short_month_days": [1, 8, 14, 15, 18, 23, 24, 27, 28, 29]
+    }
+  },
+  "common_templates": {
+    "THAP_TRAI": {
+      "badge": "Ngày Thập Trai",
+      "color_hex": "#2E7D32",
+      "short_advice": "Ngày ăn chay kỳ thanh lọc thân tâm, nuôi dưỡng lòng từ bi và giữ tâm thái bình hòa.",
+      "detail": "Theo kinh Địa Tạng, vào 10 ngày trai trong tháng, chư Thiên và thiện thần tuần hành xét định thiện ác. Nên ưu tiên thực phẩm thực vật thanh đạm, hạn chế sát sinh, giữ khẩu nghiệp thanh tịnh và làm việc thiện."
+    },
+    "TKBG_GENERAL": {
+      "badge": "Tiết Dục Dưỡng Sinh",
+      "color_hex": "#5C6BC0",
+      "short_advice": "Ngày âm dương giao chuyển, nên tiết chế dục vọng, nghỉ ngơi sớm để bảo toàn tinh khí.",
+      "detail": "Theo sách Thọ Khang Bảo Giám, đây là ngày khí huyết trong cơ thể và thiên nhiên có sự biến động. Việc giữ tâm thanh tịnh, tránh lao lực và tiết dục giúp ngăn ngừa hao tổn nguyên khí, duy trì sức khỏe bền bỉ."
+    }
+  },
+  "months": [
+    {
+      "month": 1,
+      "month_name": "Tháng Giêng",
+      "month_theme": "Mùa xuân khởi đầu, dương khí mới sinh còn non yếu, cần tĩnh dưỡng để cả năm sung mãn.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Nguyên Đán & Thiên Lạp", "advice": "Đầu năm mới âm dương giao hòa, tuyệt đối giữ thân tâm thanh tịnh, tránh hao tổn nguyên khí để cả năm bình an." },
+        { "day": 3, "level": "MEDIUM", "title": "Ngày Đẩu Giáng", "advice": "Khí trời đầu xuân còn lạnh, nên giữ ấm cơ thể, sinh hoạt điều độ, tránh thức khuya." },
+        { "day": 5, "level": "MEDIUM", "title": "Ngày Ngũ Hư Kỵ", "advice": "Dương khí mới nhú, cần tiết chế cảm xúc và dục vọng để bảo vệ tạng thận." },
+        { "day": 6, "level": "MEDIUM", "title": "Ngày Lục Hư Kỵ", "advice": "Nên dành thời gian đọc sách, tản bộ nhẹ nhàng thay vì tiêu hao năng lượng." },
+        { "day": 7, "level": "HIGH", "title": "Ngày Thượng Hội (Nhân Nhật)", "advice": "Ngày vía loài người, nên ăn uống thanh đạm, giữ tinh thần sảng khoái, tránh nóng giận." },
+        { "day": 8, "level": "HIGH", "title": "Ngày Ngũ Điện Diêm La & Thập Trai", "advice": "Trùng ngày Thập Trai, rất thích hợp để ăn chay, thiền định và nghỉ ngơi sớm." },
+        { "day": 9, "level": "HIGH", "title": "Ngày Vía Ngọc Hoàng Thượng Đế", "advice": "Ngày đại lễ đầu năm, nên giữ thân khẩu ý trang nghiêm, thanh tịnh." },
+        { "day": 13, "level": "MEDIUM", "title": "Ngày Tam Hoàng Giáng", "advice": "Chuẩn bị bước vào kỳ trăng tròn đầu năm, khí huyết đang tăng mạnh, cần tiết chế." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Tam Nguyên Giáng & Thập Trai", "advice": "Sát ngày rằm tháng Giêng, trăng sắp tròn đầy, nên ăn chay và tiết dục dưỡng thần." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Giêng (Thượng Nguyên)", "advice": "Thủy triều và khí huyết dâng cao nhất đầu năm, phạm phải dễ tổn thương chân khí." },
+        { "day": 16, "level": "MEDIUM", "title": "Ngày Tam Thánh Giáng", "advice": "Sau ngày rằm khí bắt đầu chuyển pha, nên giữ nhịp sinh hoạt nhẹ nhàng." },
+        { "day": 23, "level": "HIGH", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Trùng ngày Thập Trai, nên thanh lọc cơ thể bằng thực phẩm nhẹ bụng." },
+        { "day": 25, "level": "MEDIUM", "title": "Ngày Nguyệt Hối Kỵ", "advice": "Cuối tháng ánh trăng khuyết dần, dương khí thu liễm, cần ngủ đủ giấc." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Hạ Thập Trai", "advice": "Giai đoạn chuyển giao sang tháng mới, nên tiết chế sinh hoạt vợ chồng." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Khí trời cuối tháng suy giảm, tránh làm việc quá sức hay thức khuya." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Nguyệt Tận (Hối Nhật)", "advice": "Ngày cuối cùng của tháng âm lịch, âm khí cực thịnh, tuyệt đối giữ gìn tinh khí." }
+      ]
+    },
+    {
+      "month": 2,
+      "month_name": "Tháng Hai",
+      "month_theme": "Tiết Kinh Trập và Xuân Phân, sấm động đất trời chuyển mình, vạn vật sinh sôi nhưng khí hậu thất thường.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Tần Quảng Vương", "advice": "Đầu tháng trăng non, khí huyết bắt đầu chu kỳ mới, cần tĩnh dưỡng." },
+        { "day": 2, "level": "MEDIUM", "title": "Ngày Vạn Thần Tập Hội", "advice": "Khí xuân bốc lên mạnh, dễ gây bốc hỏa, nên uống nhiều nước và giữ tâm bình tĩnh." },
+        { "day": 3, "level": "MEDIUM", "title": "Ngày Văn Xương Đế Quân Đản", "advice": "Thích hợp cho việc học tập, nghiên cứu, tránh tiêu hao tinh lực." },
+        { "day": 6, "level": "MEDIUM", "title": "Ngày Lôi Công Phát Thanh", "advice": "Tiết trời dễ có sấm động đầu mùa, thiên nhiên biến động mạnh nên cần tiết dục." },
+        { "day": 8, "level": "HIGH", "title": "Ngày Thích Ca Xuất Gia & Thập Trai", "advice": "Trùng ngày Thập Trai, nên ăn chay, giữ lòng thanh tịnh và nghỉ ngơi sớm." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Sát ngày rằm, khí huyết dâng cao, cần tiết chế để tránh hao tổn." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Hai (Thích Ca Niết Bàn)", "advice": "Ngày trăng tròn giữa mùa xuân, nên ăn chay, thiền định, tránh lao lực." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Chí Thánh Đản & Thập Trai", "advice": "Trùng ngày Thập Trai, ưu tiên thực phẩm thanh đạm, giữ nhịp sống chậm." },
+        { "day": 19, "level": "HIGH", "title": "Ngày Vía Quán Thế Âm Bồ Tát", "advice": "Ngày đại lễ thanh tịnh, rất tốt để ăn chay, làm việc thiện và dưỡng tâm." },
+        { "day": 21, "level": "MEDIUM", "title": "Ngày Phổ Hiền Bồ Tát Đản", "advice": "Nên giữ gìn sức khỏe, tránh căng thẳng tinh thần." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Trùng ngày Thập Trai, hạn chế rượu bia và các chất kích thích." },
+        { "day": 25, "level": "MEDIUM", "title": "Ngày Nguyệt Hối Kỵ", "advice": "Cuối tháng khí lực suy giảm, cần ngủ sớm để phục hồi thể lực." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Hạ Thập Trai", "advice": "Nên tiết chế dục vọng, giữ tinh thần thư thái." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Giai đoạn giao tháng, tránh làm việc quá sức." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Nguyệt Tận (Hối Nhật)", "advice": "Ngày cuối tháng âm lịch, nên giữ thân tâm thanh tịnh tuyệt đối." }
+      ]
+    },
+    {
+      "month": 3,
+      "month_name": "Tháng Ba",
+      "month_theme": "Tiết Thanh Minh và Cốc Vũ, giao mùa xuân sang hạ, độ ẩm cao dễ ảnh hưởng đến tạng can và tỳ.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Sở Giang Vương", "advice": "Đầu tháng mới, nên tiết chế sinh hoạt để bảo toàn nguyên khí." },
+        { "day": 3, "level": "HIGH", "title": "Ngày Huyền Thiên Thượng Đế Đản", "advice": "Ngày tiết Thượng Tỵ cổ truyền, thích hợp thanh lọc cơ thể, dạo chơi nhẹ nhàng." },
+        { "day": 6, "level": "MEDIUM", "title": "Ngày Lôi Công Kỵ", "advice": "Thời tiết giao mùa dễ có mưa giông, cần giữ ấm và tiết dục." },
+        { "day": 8, "level": "HIGH", "title": "Ngày Biện Thành Vương & Thập Trai", "advice": "Trùng ngày Thập Trai, nên dùng bữa chay thanh đạm, tránh đồ cay nóng." },
+        { "day": 9, "level": "MEDIUM", "title": "Ngày Ngưu Quỷ Thần Xuất", "advice": "Khí hậu ẩm thấp dễ gây mệt mỏi, nên đi ngủ trước 23h." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Sát kỳ trăng tròn, khí huyết vượng, nên tiết chế dục vọng." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Ba (Huyền Đàn Đản)", "advice": "Trăng tròn giữa tháng, nên giữ tâm bình hòa, tránh tranh cãi và lao lực." },
+        { "day": 16, "level": "MEDIUM", "title": "Ngày Chuẩn Đề Bồ Tát Đản", "advice": "Trùng ngày Thập Trai (theo lịch mở rộng), nên ăn chay và tĩnh tâm." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Trung Nhạc Đại Đế Đản", "advice": "Trùng ngày Thập Trai, thích hợp uống trà thảo mộc, thư giãn tinh thần." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Thiên Hậu Thánh Mẫu Đản", "advice": "Trùng ngày Thập Trai, nên giữ nhịp sinh hoạt điều độ." },
+        { "day": 27, "level": "MEDIUM", "title": "Ngày Thất Tinh Giáng", "advice": "Cuối tháng khí lực bắt đầu thu vào, hạn chế tiêu hao năng lượng." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Thương Hiệt Chí Thánh Đản", "advice": "Trùng ngày Thập Trai, nên đọc sách, nghỉ ngơi sớm." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Tránh thức khuya và sử dụng thiết bị điện tử quá lâu trước khi ngủ." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Nguyệt Tận (Hối Nhật)", "advice": "Ngày cuối tháng, âm khí nặng, cần tuyệt đối giữ gìn tinh khí." }
+      ]
+    },
+    {
+      "month": 4,
+      "month_name": "Tháng Tư",
+      "month_theme": "Tháng Thuần Dương, khí nóng bắt đầu tăng, mồ hôi ra nhiều làm hao tổn tân dịch và tâm khí.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Tống Đế Vương", "advice": "Khởi đầu mùa hạ, dương khí bốc mạnh, nên giữ tâm thanh tịnh, tránh nóng nảy." },
+        { "day": 4, "level": "MEDIUM", "title": "Ngày Văn Thù Bồ Tát Đản", "advice": "Nên ăn uống thanh mát, tránh đồ chiên xào nhiều dầu mỡ." },
+        { "day": 8, "level": "HIGH", "title": "Ngày Lễ Phật Đản & Thập Trai", "advice": "Ngày đại lễ thanh tịnh, rất tốt để ăn chay, làm việc thiện và tiết dục." },
+        { "day": 10, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Thời tiết bắt đầu oi bức, cần bổ sung đủ nước và ngủ đủ giấc." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Thuần Dương Tổ Sư Đản", "advice": "Sát ngày rằm và trùng Thập Trai, cần giữ gìn tinh khí để tránh suy nhược." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Tư (Lễ Phật Đản)", "advice": "Trăng tròn đầu hạ, dương khí thịnh, nên tĩnh tọa, ăn chay và nghỉ ngơi." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Tử Vi Đại Đế Đản", "advice": "Trùng ngày Thập Trai, hạn chế vận động quá sức dưới trời nắng nóng." },
+        { "day": 20, "level": "MEDIUM", "title": "Ngày Nhãn Quang Thánh Mẫu Đản", "advice": "Nên bảo vệ mắt, nghỉ ngơi sớm và tránh căng thẳng." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Trùng ngày Thập Trai, ưu tiên rau xanh và trái cây thanh mát." },
+        { "day": 25, "level": "MEDIUM", "title": "Ngày Nguyệt Hối Kỵ", "advice": "Cuối tháng khí lực suy giảm, cần tiết chế sinh hoạt vợ chồng." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Dược Vương Bồ Tát Đản", "advice": "Trùng ngày Thập Trai, ngày tốt để chăm sóc sức khỏe, uống trà dưỡng sinh." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Khí trời oi ả cuối tháng, tránh thức khuya." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Nguyệt Tận (Hối Nhật)", "advice": "Ngày cuối tháng âm lịch, cần giữ thân tâm thanh tịnh tuyệt đối." }
+      ]
+    },
+    {
+      "month": 5,
+      "month_name": "Tháng Năm",
+      "month_theme": "THÁNG CỬU ĐỘC: Dương khí cực thịnh bên ngoài nhưng âm khí phục bên trong, cơ thể rỗng yếu nhất năm. Sách khuyên nên tiết dục cả tháng.",
+      "full_month_advisory": "Theo Thọ Khang Bảo Giám, tháng 5 Âm lịch gọi là tháng 'Cửu Độc' (9 ngày độc hại khí huyết). Nhiệt độ cao làm lỗ chân lông giãn nở, nguyên khí dễ thoát ra ngoài. Khuyên dùng: Tiết dục tối đa trong suốt tháng này, đặc biệt kiêng kỵ tuyệt đối vào các ngày được gắn cờ đỏ bên dưới.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc - Khởi đầu tháng Cửu Độc", "advice": "Bước vào tháng Cửu Độc, dương khí bốc mạnh ra ngoài, bên trong tạng phủ hư yếu, cần tiết dục dưỡng thân." },
+        { "day": 5, "level": "HIGH", "title": "Ngày Đoan Ngọ (Ngày Cửu Độc 1)", "advice": "Ngày khí hậu biến động cực mạnh, âm dương tranh đấu, tuyệt đối kiêng phòng sự để bảo toàn nguyên khí, tránh hao tổn chân âm chân dương." },
+        { "day": 6, "level": "HIGH", "title": "Ngày Cửu Độc 2", "advice": "Tiếp nối tiết Đoan Ngọ, khí huyết chưa ổn định, cần ăn uống thanh đạm và nghỉ ngơi." },
+        { "day": 7, "level": "HIGH", "title": "Ngày Cửu Độc 3", "advice": "Nắng nóng dễ làm hao tâm khí, tránh làm việc quá sức hay nổi nóng." },
+        { "day": 8, "level": "MEDIUM", "title": "Ngày Thập Trai Giữa Hạ", "advice": "Ngày ăn chay kỳ, nên dùng các món giải nhiệt như đậu xanh, hạt sen." },
+        { "day": 11, "level": "HIGH", "title": "Ngày Thiên Địa Giao Thái", "advice": "Trời đất giao hòa khí mạnh, con người cần giữ tâm tĩnh lặng, tiết dục." },
+        { "day": 13, "level": "HIGH", "title": "Ngày Quan Thánh Đế Quân Đản", "advice": "Sát kỳ trăng tròn tháng Cửu Độc, cần tuyệt đối giữ gìn tinh khí." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Thập Trai & Sát Rằm", "advice": "Thủy triều dâng cao, khí huyết sôi sục, nên ăn chay và ngủ sớm." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Năm (Ngày Cửu Độc 4)", "advice": "Trăng tròn giữa tháng độc nhất năm, phạm phải dễ sinh bệnh mãn tính về sau." },
+        { "day": 16, "level": "HIGH", "title": "Ngày Thiên Địa Tạo Hóa (Cửu Độc 5)", "advice": "Ngày âm dương biến chuyển mạnh mẽ, nên giữ thân tâm thanh tịnh." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Duy trì chế độ ăn nhẹ bụng, hạn chế đạm động vật và chất kích thích." },
+        { "day": 22, "level": "MEDIUM", "title": "Ngày Ngũ Ôn Thần Xuất", "advice": "Thời tiết oi bức dễ sinh dịch bệnh, cần giữ vệ sinh và bảo toàn thể lực." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Nên uống trà thảo mộc thanh nhiệt, tránh thức khuya." },
+        { "day": 25, "level": "HIGH", "title": "Ngày Cửu Độc 6", "advice": "Cuối tháng Cửu Độc, nguyên khí suy giảm mạnh, cần tiết chế tối đa." },
+        { "day": 26, "level": "HIGH", "title": "Ngày Cửu Độc 7", "advice": "Nên nghỉ ngơi, đọc sách, tránh các hoạt động tiêu hao năng lượng." },
+        { "day": 27, "level": "HIGH", "title": "Ngày Cửu Độc 8", "advice": "Giữ tinh thần thư thái, ngủ đủ giấc để phục hồi tạng thận." },
+        { "day": 28, "level": "HIGH", "title": "Ngày Thập Trai & Cận Nguyệt Tận", "advice": "Ngày ăn chay cuối tháng, cần giữ tâm thanh tịnh." },
+        { "day": 29, "level": "HIGH", "title": "Ngày Thập Trai", "advice": "Ánh trăng khuyết hẳn, âm khí nặng, tránh lao lực." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Nguyệt Tận (Ngày Cửu Độc 9)", "advice": "Khép lại tháng Cửu Độc, tuyệt đối kiêng kỵ phòng sự để bảo toàn sức khỏe." }
+      ]
+    },
+    {
+      "month": 6,
+      "month_name": "Tháng Sáu",
+      "month_theme": "Tiết Tiểu Thử và Đại Thử, nắng nóng đỉnh điểm, hỏa vượng thủy suy, rất cần dưỡng tâm và thận.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Biện Thành Vương", "advice": "Đầu tháng trời nắng gắt, nên tiết dục, tránh để cơ thể mất nước và suy nhược." },
+        { "day": 6, "level": "MEDIUM", "title": "Ngày Thiên Huống (Phơi Sách)", "advice": "Dương khí cực thịnh, thích hợp dọn dẹp nhà cửa, giữ tâm trí thông thoáng." },
+        { "day": 8, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Nên ăn chay thanh đạm để giảm tải cho hệ tiêu hóa trong ngày nóng." },
+        { "day": 13, "level": "MEDIUM", "title": "Ngày Lỗ Ban Tiên Sư Đản", "advice": "Sát kỳ trăng tròn, khí huyết dễ bốc hỏa, cần giữ bình tĩnh." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Thập Trai & Sát Rằm", "advice": "Thủy triều lên cao, nên nghỉ ngơi sớm và tiết chế dục vọng." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Sáu", "advice": "Trăng tròn giữa mùa hè oi bức, phạm phải dễ gây hoa mắt, chóng mặt, suy nhược." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Ưu tiên các món canh mát, hạt sen, bạch quả để dưỡng tâm an thần." },
+        { "day": 19, "level": "HIGH", "title": "Ngày Vía Quán Âm Thành Đạo", "advice": "Ngày đại lễ thanh tịnh, rất tốt để ăn chay, thiền định và buông bỏ phiền não." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Hỏa Thần Đản & Thập Trai", "advice": "Hỏa khí vượng, tránh đồ cay nóng, rượu bia và giữ tâm bình hòa." },
+        { "day": 24, "level": "HIGH", "title": "Ngày Quan Đế Đản & Lôi Tổ Đản", "advice": "Trùng ngày Thập Trai, thời tiết hay có giông chiều, cần tiết dục dưỡng thân." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Hạ Thập Trai", "advice": "Cuối tháng khí lực giảm, nên đi ngủ sớm." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Tránh thức khuya và làm việc quá sức." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Nguyệt Tận (Hối Nhật)", "advice": "Ngày cuối tháng âm lịch, cần tuyệt đối giữ gìn tinh khí." }
+      ]
+    },
+    {
+      "month": 7,
+      "month_name": "Tháng Bảy",
+      "month_theme": "Tiết Lập Thu và Vu Lan, nắng hạ lùi dần, âm khí bắt đầu tăng, thời tiết hanh khô dễ tổn thương phế khí.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Thái Sơn Vương", "advice": "Đầu tháng âm khí bắt đầu khởi sinh, nên giữ tâm thanh tịnh, tiết chế dục vọng." },
+        { "day": 7, "level": "HIGH", "title": "Ngày Thất Tịch (Đạo Đức Lạp)", "advice": "Ngày Ngưu Lang Chức Nữ gặp nhau, trời đất giao cảm mạnh, sách khuyên nên tiết dục để giữ nguyên khí." },
+        { "day": 8, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Nên ăn chay, uống đủ nước để chống lại cái hanh khô đầu thu." },
+        { "day": 10, "level": "MEDIUM", "title": "Ngày Âm Khí Thịnh", "advice": "Thời tiết chuyển mùa ngày nóng đêm lạnh, dễ cảm mạo, cần bảo toàn thể lực." },
+        { "day": 13, "level": "MEDIUM", "title": "Ngày Đại Thế Chí Bồ Tát Đản", "advice": "Sát rằm tháng Bảy, nên giữ thân khẩu ý thanh tịnh." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Thập Trai & Sát Rằm", "advice": "Trùng ngày Thập Trai, rất thích hợp để ăn chay, tưởng nhớ tổ tiên và tiết dục." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Bảy (Lễ Vu Lan - Trung Nguyên)", "advice": "Ngày lễ lớn báo hiếu, nên giữ tâm thành kính, ăn chay thanh tịnh tuyệt đối." },
+        { "day": 16, "level": "MEDIUM", "title": "Ngày Hậu Trung Nguyên", "advice": "Khí hậu giao mùa, hạn chế thức khuya và sử dụng chất kích thích." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Tây Vương Mẫu Đản & Thập Trai", "advice": "Trùng ngày Thập Trai, nên dùng các món bổ phổi như lê hấp, ngân nhĩ." },
+        { "day": 19, "level": "MEDIUM", "title": "Ngày Thái Tuế Tinh Quân Đản", "advice": "Giữ nhịp sống chậm rãi, tránh căng thẳng lo âu." },
+        { "day": 22, "level": "MEDIUM", "title": "Ngày Tăng Phúc Tài Thần Đản", "advice": "Nên làm việc thiện, giữ tinh thần lạc quan, tránh lao lực." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Thanh lọc cơ thể bằng thực phẩm nhẹ bụng." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Hạ Thập Trai", "advice": "Cuối tháng trăng khuyết, cần nghỉ ngơi sớm." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Tránh tiêu hao năng lượng vào buổi tối." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Vía Địa Tạng Vương Bồ Tát", "advice": "Ngày Nguyệt Tận trùng vía Địa Tạng, rất tốt để ăn chay, giữ giới và tiết dục." }
+      ]
+    },
+    {
+      "month": 8,
+      "month_name": "Tháng Tám",
+      "month_theme": "Tiết Bạch Lộ và Thu Phân, khí thu mát mẻ nhưng khô ráo, cần thu liễm tinh thần và dưỡng âm.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Đô Thị Vương", "advice": "Đầu tháng giữa thu, nên tiết chế dục vọng để giữ gìn tân dịch." },
+        { "day": 3, "level": "MEDIUM", "title": "Ngày Bắc Đẩu Đản & Táo Quân Đản", "advice": "Khí trời ban đêm bắt đầu se lạnh, cần giữ ấm và ngủ sớm." },
+        { "day": 5, "level": "MEDIUM", "title": "Ngày Lôi Thanh Đại Đế Đản", "advice": "Tiết Bạch Lộ sương xuống, tránh để cơ thể nhiễm lạnh và suy nhược." },
+        { "day": 8, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Nên ăn chay thanh đạm, bổ sung các thực phẩm dưỡng âm nhuận phế." },
+        { "day": 10, "level": "MEDIUM", "title": "Ngày Bắc Nhạc Đại Đế Đản", "advice": "Giữ tâm thái bình hòa, tránh làm việc quá sức." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Thập Trai & Sát Trung Thu", "advice": "Trăng sắp tròn nhất năm, thủy triều lên cao, cần tiết dục dưỡng thần." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Tám (Tết Trung Thu)", "advice": "Trăng tròn sáng nhất năm, âm khí cực vượng, sách khuyên nên sum vầy thanh tịnh, kiêng phòng sự." },
+        { "day": 16, "level": "MEDIUM", "title": "Ngày Hậu Trung Thu", "advice": "Sau ngày rằm khí bắt đầu chuyển pha, nên ăn uống nhẹ nhàng (tránh ăn quá nhiều bánh ngọt)." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Thanh lọc hệ tiêu hóa bằng rau xanh và trà ấm." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Nên duy trì thói quen đi ngủ sớm trước 23h." },
+        { "day": 24, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Giữ tinh thần thư thái, hạn chế căng thẳng." },
+        { "day": 27, "level": "MEDIUM", "title": "Ngày Khổng Tử Đản Sinh", "advice": "Thích hợp đọc sách, chiêm nghiệm, tránh tiêu hao tinh lực." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Hạ Thập Trai", "advice": "Cuối tháng khí lực suy giảm, cần tiết chế." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Nghỉ ngơi đầy đủ để chuẩn bị cho tháng mới." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Nguyệt Tận (Hối Nhật)", "advice": "Ngày cuối tháng âm lịch, cần giữ thân tâm thanh tịnh tuyệt đối." }
+      ]
+    },
+    {
+      "month": 9,
+      "month_name": "Tháng Chín",
+      "month_theme": "Tiết Hàn Lộ và Sương Giáng, dương khí thu vào trong, âm khí tăng mạnh, cần giữ ấm và tàng giữ nguyên khí.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Bình Đẳng Vương", "advice": "Đầu tháng cuối thu, thời tiết chuyển lạnh, cần tiết dục để bảo vệ dương khí." },
+        { "day": 3, "level": "MEDIUM", "title": "Ngày Ngũ Ôn Thần Giáng", "advice": "Giữ ấm vùng cổ và bàn chân, tránh thức khuya." },
+        { "day": 8, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Nên ăn chay với các món ấm nóng, dễ tiêu hóa." },
+        { "day": 9, "level": "HIGH", "title": "Ngày Tết Trùng Cửu (Cửu Hoàng Đản)", "advice": "Hai số 9 (thuần dương) trùng nhau, dương khí cực thịnh dễ biến đổi, nên leo núi dạo chơi nhẹ nhàng, kiêng phòng sự." },
+        { "day": 13, "level": "MEDIUM", "title": "Ngày Mạnh Bà Tôn Thần Đản", "advice": "Sát kỳ trăng tròn, nên giữ tâm thanh tịnh, tránh lo âu." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Thập Trai & Sát Rằm", "advice": "Trùng ngày Thập Trai, nên ăn chay và nghỉ ngơi sớm." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Chín", "advice": "Trăng tròn cuối thu, khí huyết dâng cao, cần tiết chế dục vọng." },
+        { "day": 17, "level": "MEDIUM", "title": "Ngày Kim Long Tứ Đại Vương Đản", "advice": "Thời tiết hanh lạnh, hạn chế rượu bia và các chất kích thích." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Ưu tiên thực phẩm thanh đạm, uống trà gừng hoặc trà hoa cúc ấm." },
+        { "day": 19, "level": "HIGH", "title": "Ngày Vía Quán Âm Xuất Gia", "advice": "Ngày đại lễ thanh tịnh, rất tốt để ăn chay, thiền định và dưỡng tâm." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Nên duy trì giấc ngủ sâu để phục hồi năng lượng." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Hạ Thập Trai", "advice": "Cuối tháng trăng khuyết, tránh lao lực quá sức." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Giữ ấm cơ thể khi trời trở gió." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Vía Phật Dược Sư & Nguyệt Tận", "advice": "Ngày cuối tháng trùng vía Phật Dược Sư, rất tốt để ăn chay, cầu sức khỏe và tiết dục." }
+      ]
+    },
+    {
+      "month": 10,
+      "month_name": "Tháng Mười",
+      "month_theme": "Tiết Lập Đông và Tiểu Tuyết, bước vào mùa đông, vạn vật ẩn tàng, con người cần dưỡng thận tàng tinh.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Dân Tuế Lạp", "advice": "Khởi đầu mùa đông (Tết Cơm Mới), cần thu liễm tinh thần, tiết dục để tích trữ năng lượng cho mùa lạnh." },
+        { "day": 5, "level": "MEDIUM", "title": "Ngày Đạt Ma Tổ Sư Đản", "advice": "Thích hợp thiền định, tĩnh tâm, tránh nói nhiều hay nóng giận." },
+        { "day": 6, "level": "MEDIUM", "title": "Ngày Thiên Tào Khảo Sát", "advice": "Trời lạnh dễ làm co mạch, nên giữ ấm và sinh hoạt điều độ." },
+        { "day": 8, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Nên ăn chay với các món ấm bụng như hầm, kho nhẹ nhàng." },
+        { "day": 10, "level": "MEDIUM", "title": "Ngày Tây Thiên Vương Đản", "advice": "Hạn chế thức khuya, nên đi ngủ sớm để dưỡng âm." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Tam Nguyên Giáng & Thập Trai", "advice": "Sát ngày rằm Hạ Nguyên, nên ăn chay và giữ thân tâm thanh tịnh." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Mười (Tết Hạ Nguyên)", "advice": "Ngày đại lễ cuối năm, âm khí thịnh, phạm phòng sự dễ tổn thương thận khí." },
+        { "day": 16, "level": "MEDIUM", "title": "Ngày Hậu Hạ Nguyên", "advice": "Giữ nhịp sinh hoạt nhẹ nhàng, tránh vận động ra nhiều mồ hôi vào ban đêm." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Thanh lọc cơ thể, bổ sung các loại hạt như óc chó, mè đen để dưỡng thận." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Tránh căng thẳng công việc, dành thời gian thư giãn." },
+        { "day": 27, "level": "MEDIUM", "title": "Ngày Bắc Cực Tử Vi Giáng", "advice": "Cuối tháng trời rét đậm, cần bảo toàn nguyên khí." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Hạ Thập Trai", "advice": "Nên ngâm chân nước ấm trước khi ngủ và tiết chế dục vọng." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Tránh thức khuya và sử dụng đồ uống lạnh." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Nguyệt Tận (Hối Nhật)", "advice": "Ngày cuối tháng âm lịch, tuyệt đối giữ gìn tinh khí." }
+      ]
+    },
+    {
+      "month": 11,
+      "month_name": "Tháng Một (Tháng Đông Chí)",
+      "month_theme": "Tiết Đại Tuyết và Đông Chí, âm khí cực thịnh và 'nhất dương sơ sinh' cực kỳ yếu ớt, phạm phải dễ sinh bệnh mãn tính.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Chuyển Luân Vương", "advice": "Tháng Đông Chí âm khí cực nặng, dương khí ẩn sâu, rất cần tiết dục để bảo vệ tạng thận." },
+        { "day": 4, "level": "MEDIUM", "title": "Ngày Chí Thánh Tiên Sư Đản", "advice": "Giữ ấm cơ thể, đặc biệt là vùng lưng và bàn chân." },
+        { "day": 6, "level": "MEDIUM", "title": "Ngày Tây Nhạc Đại Đế Đản", "advice": "Nên ăn uống ấm nóng, tránh thức khuya hao tổn tinh huyết." },
+        { "day": 8, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Nên ăn chay thanh đạm, dùng thêm gừng hoặc quế để làm ấm tỳ vị." },
+        { "day": 11, "level": "HIGH", "title": "Ngày Thái Ất Cứu Khổ Thiên Tôn Đản", "advice": "Gần tiết Đông Chí, một tia dương khí mới sinh cực kỳ mong manh, cần tĩnh dưỡng tuyệt đối." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Thập Trai & Sát Rằm", "advice": "Thủy triều và âm khí dâng cao, nên ăn chay và nghỉ ngơi sớm." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Một", "advice": "Trăng tròn giữa mùa đông giá rét, phạm phải dễ gây đau lưng, mỏi gối, suy nhược kéo dài." },
+        { "day": 17, "level": "HIGH", "title": "Ngày Vía Đức Phật A Di Đà", "advice": "Ngày đại lễ thanh tịnh, rất tốt để ăn chay, niệm Phật, giữ tâm an lạc và tiết dục." },
+        { "day": 19, "level": "MEDIUM", "title": "Ngày Cửu Liên Bồ Tát Đản", "advice": "Duy trì nhịp sống chậm, ngủ sớm dậy muộn theo nhịp mùa đông." },
+        { "day": 23, "level": "MEDIUM", "title": "Ngày Trương Tiên Đại Đế Đản & Thập Trai", "advice": "Trùng ngày Thập Trai, hạn chế rượu bia và các bữa tiệc quá muộn." },
+        { "day": 25, "level": "MEDIUM", "title": "Ngày Lược Thiên Đại Đế Đản", "advice": "Cuối tháng khí lực thu liễm, cần tiết chế sinh hoạt vợ chồng." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Hạ Thập Trai", "advice": "Nên thư giãn tinh thần, tránh lo âu cuối năm." },
+        { "day": 29, "level": "MEDIUM", "title": "Ngày Tứ Thiên Vương Tuần Hành", "advice": "Giữ ấm và ngủ đủ giấc." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Nguyệt Tận (Hối Nhật)", "advice": "Ngày cuối tháng âm lịch, cần giữ thân tâm thanh tịnh tuyệt đối." }
+      ]
+    },
+    {
+      "month": 12,
+      "month_name": "Tháng Chạp",
+      "month_theme": "Tiết Tiểu Hàn và Đại Hàn, tháng cuối cùng của năm, công việc bận rộn dễ lao lực, cần giữ sức đón năm mới.",
+      "tkbg_days": [
+        { "day": 1, "level": "HIGH", "title": "Ngày Sóc & Tần Quảng Vương", "advice": "Khởi đầu tháng cuối năm, bận rộn nhưng đừng quên giữ gìn nguyên khí, tiết chế dục vọng." },
+        { "day": 6, "level": "MEDIUM", "title": "Ngày Thiên Địa Khảo Sát", "advice": "Trời rét đậm, tránh để cơ thể nhiễm lạnh sau khi làm việc mệt mỏi." },
+        { "day": 7, "level": "MEDIUM", "title": "Ngày Lược Thiên Đại Đế Đản", "advice": "Sắp xếp công việc khoa học, tránh thức khuya chạy tiến độ cuối năm." },
+        { "day": 8, "level": "HIGH", "title": "Ngày Phật Thích Ca Thành Đạo & Thập Trai", "advice": "Lễ Lạp Bát và Thập Trai, rất tốt để ăn chay (cháo Lạp Bát), tĩnh tâm và tiết dục." },
+        { "day": 12, "level": "MEDIUM", "title": "Ngày Thái Ất Giáng", "advice": "Sát kỳ trăng tròn cuối năm, nên giữ tinh thần thư thái." },
+        { "day": 14, "level": "HIGH", "title": "Ngày Thập Trai & Sát Rằm", "advice": "Trùng ngày Thập Trai, nên giảm bớt tiệc tùng, ăn uống thanh đạm." },
+        { "day": 15, "level": "HIGH", "title": "Rằm Tháng Chạp", "advice": "Trăng tròn cuối cùng của năm, khí huyết biến động mạnh, cần nghỉ ngơi sớm." },
+        { "day": 16, "level": "MEDIUM", "title": "Ngày Nam Nhạc Đại Đế Đản", "advice": "Tránh uống quá nhiều rượu bia trong các buổi tất niên." },
+        { "day": 18, "level": "MEDIUM", "title": "Ngày Thập Trai", "advice": "Thanh lọc cơ thể sau những ngày bận rộn cuối năm." },
+        { "day": 20, "level": "MEDIUM", "title": "Ngày Lỗ Ban Tiên Sư Đản", "advice": "Cẩn trọng trong đi lại, dọn dẹp nhà cửa, tránh lao lực quá sức." },
+        { "day": 23, "level": "HIGH", "title": "Ngày Đưa Ông Táo Về Trời & Thập Trai", "advice": "Trùng ngày Thập Trai, nên giữ nhà cửa sạch sẽ, thân tâm thanh tịnh." },
+        { "day": 24, "level": "HIGH", "title": "Ngày Ngũ Nhạc Giáng & Thập Trai", "advice": "Trùng ngày Thập Trai, rất thích hợp để ăn chay và buông bỏ muộn phiền năm cũ." },
+        { "day": 28, "level": "MEDIUM", "title": "Ngày Hạ Thập Trai", "advice": "Cận Tết, nên giữ sức khỏe, tránh thức quá khuya." },
+        { "day": 29, "level": "HIGH", "title": "Ngày Hoa Nghiêm Bồ Tát Đản", "advice": "Sát giao thừa, âm dương sắp chuyển giao sang năm mới, tuyệt đối giữ gìn tinh khí." },
+        { "day": 30, "level": "HIGH", "title": "Ngày Trừ Tịch (Giao Thừa)", "advice": "Thời khắc chuyển giao năm cũ và năm mới thiêng liêng nhất, giữ thân tâm thanh tịnh tuyệt đối để đón vận khí tốt lành." }
+      ]
+    }
+  ]
+}

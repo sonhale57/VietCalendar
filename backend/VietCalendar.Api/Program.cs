@@ -5,15 +5,21 @@ using Microsoft.AspNetCore.RateLimiting;
 using VietCalendar.Api.Accounts;
 using VietCalendar.Api.Calendar;
 using VietCalendar.Api.Content;
+using VietCalendar.Api.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<VietnameseLunarCalendar>();
 builder.Services.AddSingleton<CalendarContentRepository>();
+builder.Services.AddSingleton<LunarCalendarAdviceRepository>();
+builder.Services.AddSingleton<ILunarCalendarAdviceService, LunarCalendarAdviceService>();
+builder.Services.AddSingleton<SqlServerDatabaseInitializer>();
 builder.Services.AddSingleton<UserAccountRepository>();
 builder.Services.AddSingleton<GoogleTokenValidator>();
 builder.Services.AddSingleton<EmailOtpSender>();
 builder.Services.AddSingleton<LocalAccountService>();
 builder.Services.AddSingleton<AccountAuthenticator>();
+builder.Services.AddSingleton<CalendarEventRepository>();
+builder.Services.AddSingleton<ICalendarEventService, CalendarEventService>();
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("auth", limiter =>
@@ -40,9 +46,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+await app.Services
+    .GetRequiredService<SqlServerDatabaseInitializer>()
+    .InitializeAsync(CancellationToken.None);
 app.UseCors();
 app.UseRateLimiter();
 app.MapAuthEndpoints();
+app.MapCalendarEventEndpoints();
+app.MapLunarCalendarAdviceEndpoints();
 
 if (app.Environment.IsDevelopment())
 {

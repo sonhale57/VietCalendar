@@ -35,6 +35,7 @@ export default function ProfileScreen() {
   } = useCalendarSettings();
   const theme = calendarThemes[themeIndex] ?? calendarThemes[0];
   const [expandedRelative, setExpandedRelative] = useState<number | null>(null);
+  const [themePickerVisible, setThemePickerVisible] = useState(false);
 
   function updateRelative(index: number, value: string) {
     setRelativeNames(relativeNames.map((name, current) => current === index ? value : name));
@@ -212,20 +213,49 @@ export default function ProfileScreen() {
       )}
 
       <Card>
-        <SectionTitle detail="Được lưu trên thiết bị; đăng nhập Google để đồng bộ giữa các thiết bị">Giao diện</SectionTitle>
-        <View style={[commonStyles.chipRow, styles.themeOptions]}>
-          {calendarThemes.map((option, index) => (
-            <Pressable
-              key={option.name}
-              accessibilityRole="button"
-              accessibilityState={{ selected: themeIndex === index }}
-              onPress={() => setThemeIndex(index)}
-              style={[styles.themeOption, { backgroundColor: option.background, borderColor: themeIndex === index ? option.accent : '#8884' }]}>
-              <View style={[styles.themeSwatch, { backgroundColor: option.accent }]} />
-              <Text numberOfLines={1} style={[styles.themeText, { color: option.text }]}>{option.name}</Text>
-              {themeIndex === index && <Text style={[styles.themeCheck, { color: option.accent }]}>✓</Text>}
-            </Pressable>
-          ))}
+        <SectionTitle detail="5 chủ đề lễ hội & mùa màng với hiệu ứng khí quyển sống động">Giao diện lễ hội</SectionTitle>
+        <View style={{ gap: 8, marginTop: 10 }}>
+          {calendarThemes.map((option, index) => {
+            const isSelected = themeIndex === index;
+            const themeIcons: Record<string, string> = {
+              tet: '🏮 🌸',
+              trungthu: '🌕 🏮',
+              muahe: '☼ 🪷',
+              muadong: '❄ ❅',
+              giangsinh: '🎄 🔔',
+            };
+            return (
+              <Pressable
+                key={option.themeKey}
+                accessibilityRole="button"
+                onPress={() => setThemeIndex(index)}
+                style={[
+                  styles.themeSelectCard,
+                  {
+                    backgroundColor: isSelected ? `${option.accent}14` : option.card,
+                    borderColor: isSelected ? option.accent : option.navigationBorder,
+                    borderWidth: isSelected ? 2 : 1,
+                  },
+                ]}>
+                <View style={[styles.themeIconCircle, { backgroundColor: `${option.accent}20` }]}>
+                  <Text style={{ fontSize: 16 }}>{themeIcons[option.themeKey] ?? '✨'}</Text>
+                </View>
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <Text style={[styles.themeCardName, { color: option.text, fontWeight: isSelected ? '800' : '600' }]}>
+                    {option.name}
+                  </Text>
+                  <Text numberOfLines={1} style={[styles.themeCardSubtitle, { color: option.muted }]}>
+                    {option.subtitle}
+                  </Text>
+                </View>
+                {isSelected && (
+                  <View style={[styles.selectedCheckBadge, { backgroundColor: option.accent }]}>
+                    <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '800' }}>✓</Text>
+                  </View>
+                )}
+              </Pressable>
+            );
+          })}
         </View>
       </Card>
     </CalendarPage>
@@ -365,8 +395,40 @@ const styles = StyleSheet.create({
   addRelative: { borderWidth: 1, borderStyle: 'dashed', borderRadius: 8, alignItems: 'center', paddingVertical: 11, marginTop: 3 },
   addRelativeText: { fontSize: 12, fontWeight: '700' },
   optionRow: { width: '100%', flexDirection: 'row', alignItems: 'stretch', gap: 8 },
-  themeOptions: { justifyContent: 'space-between' },
-  themeOption: { width: '48%', minHeight: 45, borderWidth: 1.5, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 9, paddingVertical: 8 },
+  themeSelectCard: {
+    minHeight: 56,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  themeIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  themeCardName: { fontSize: 13, letterSpacing: 0.2 },
+  themeCardSubtitle: { fontSize: 10.5, lineHeight: 14 },
+  selectedCheckBadge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  themeDropdown: { minHeight: 44, borderWidth: 1, borderRadius: 9, flexDirection: 'row', alignItems: 'center', gap: 9, paddingHorizontal: 11 },
+  themeDropdownText: { flex: 1, fontSize: 13, fontWeight: '700' },
+  themePickerBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 22, backgroundColor: '#0007' },
+  themePickerPanel: { width: '100%', maxWidth: 420, maxHeight: '82%', borderRadius: 16, padding: 16 },
+  themePickerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  themePickerTitle: { fontSize: 17, fontWeight: '800' },
+  themePickerClose: { fontSize: 26, lineHeight: 28, paddingHorizontal: 4 },
+  themePickerList: { flexGrow: 0 },
+  themeOption: { minHeight: 45, borderWidth: 1.5, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 9, paddingHorizontal: 10, paddingVertical: 8, marginTop: 7 },
   themeSwatch: { width: 15, height: 15, borderRadius: 8 },
   themeText: { flex: 1, fontSize: 11, fontWeight: '600' },
   themeCheck: { fontSize: 12, fontWeight: '800' },

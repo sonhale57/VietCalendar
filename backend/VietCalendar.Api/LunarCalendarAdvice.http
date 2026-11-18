@@ -1,0 +1,5 @@
+@baseUrl = http://localhost:5062
+
+### Get Thập Trai and Thọ Khang advice sourced from SQL Server
+GET {{baseUrl}}/api/v1/content/lunar-advice
+Accept: application/json

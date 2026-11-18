@@ -5,16 +5,25 @@
 ## Chạy trên iPhone
 
 1. Cài Expo Go trên iPhone và kết nối máy tính, điện thoại vào cùng một mạng Wi-Fi.
-2. Từ thư mục `MiravaMobile`, cấu hình URL API rồi chạy:
+2. Từ thư mục `MiravaMobile`, tạo `.env.mobile` từ `.env.mobile.example`; thay IP mẫu bằng IP LAN hiện tại của máy chạy backend nếu cần. Sau đó chạy:
 
    ```powershell
-   $env:EXPO_PUBLIC_API_BASE_URL = "https://YOUR_API_DOMAIN"
-   npx expo start --go --lan
+   npm start
    ```
 
 3. Mở camera iPhone và quét QR trên terminal, sau đó chọn mở trong Expo Go.
 
-Nếu chỉ thử trên máy tính, có thể dùng `http://localhost:5062`. Trên điện thoại thật, `localhost` trỏ về chính điện thoại, vì vậy hãy dùng IP LAN của máy chạy API hoặc HTTPS domain. Expo nhúng `EXPO_PUBLIC_API_BASE_URL` vào bundle khi khởi động/build; `appsettings.Production.json` chỉ cấu hình backend, không cấu hình URL cho ứng dụng Expo. Giá trị `EXPO_PUBLIC_*` là công khai, không đặt mật khẩu hoặc secret vào đó.
+`npm start`, `npm run android` và `npm run ios` nạp `.env.mobile`. Trên điện thoại thật, `localhost` trỏ về chính điện thoại, vì vậy URL API phải là IP LAN của máy chạy API hoặc HTTPS domain. Expo nhúng `EXPO_PUBLIC_API_BASE_URL` vào bundle khi khởi động/build; `appsettings.Production.json` chỉ cấu hình backend, không cấu hình URL cho ứng dụng Expo. Giá trị `EXPO_PUBLIC_*` là công khai, không đặt mật khẩu hoặc secret vào đó.
+
+## Chạy giao diện web
+
+Tạo `.env.web` từ `.env.web.example`, rồi chạy trong thư mục `MiravaMobile`:
+
+```powershell
+npm run web
+```
+
+Web dùng `http://localhost:5062` cho API; Expo Web chạy tại `http://localhost:8081`. Nếu backend chưa chạy, giao diện vẫn mở nhưng các chức năng cần API sẽ không kết nối được.
 
 Nếu kết nối LAN bị chặn, thử `npx expo start --go --tunnel`.
 Nếu Expo Go báo tài khoản CLI chưa đăng nhập, chạy `npx expo login` trên máy tính và đăng nhập cùng tài khoản Expo đang dùng trên iPhone, rồi khởi động lại server.
@@ -33,13 +42,13 @@ Nếu Expo Go báo tài khoản CLI chưa đăng nhập, chạy `npx expo login`
 
 ## Google sign-in và đồng bộ thiết lập
 
-- Tạo `MiravaMobile/.env.local` từ `.env.example`. `EXPO_PUBLIC_API_BASE_URL` phải là URL của API .NET, không phải URL Metro. Khi chạy web trên cùng máy, `http://localhost:5062` dùng được; trên iPhone hãy thay bằng IP LAN hoặc HTTPS domain của máy chủ API.
+- Tạo `MiravaMobile/.env.local` từ `.env.example` để cấu hình Google Client ID. URL API được tách riêng: `.env.web` cho web và `.env.mobile` cho iOS/Android; các lệnh npm tương ứng tự nạp đúng file.
 - Google Web Client ID hiện đã được điền trong file môi trường local. Thêm Google OAuth Client ID riêng cho iOS và Android vào các biến tương ứng trước khi dùng các nền tảng đó. Backend cần cho phép tất cả Client ID này trong `GoogleAuth:Audiences`.
 - Trong Google Cloud Console, cấu hình đúng OAuth client type, authorized JavaScript origin và redirect URI cho URL web đang dùng; redirect URI phải khớp URL AuthSession tạo ra. Với iOS/Android, tạo OAuth client theo bundle/package identifier và cấu hình scheme tương ứng trong development build.
-- Chạy script `../database/sqlserver-2008/002-user-accounts.sql` trên database `VietCalendar`.
-- Chạy API tại cổng 5062 (hoặc cập nhật URL trong `.env.local`); cần cấu hình CORS cho origin Expo Web khi chạy trên trình duyệt.
+- Khi API khởi động, database được tạo theo `ConnectionStrings:CalendarDb` nếu chưa có và các migration `001`–`009` sẽ tự chạy theo thứ tự. Tài khoản SQL Server cần quyền tạo database khi cần và cập nhật schema; không cần chạy migration thủ công.
+- Chạy API tại cổng 5062 (hoặc cập nhật URL trong file môi trường tương ứng); cần cấu hình CORS cho origin Expo Web khi chạy trên trình duyệt.
 - Google xác thực ID token ở backend rồi đổi sang token phiên riêng của ứng dụng; mật khẩu và Google ID token không được lưu trên thiết bị. Ứng dụng chỉ lưu token phiên: SecureStore trên iOS/Android, localStorage trên web; phiên có hạn 30 ngày, tạo token mới khi đăng nhập, bị thu hồi khi đăng xuất/đặt lại mật khẩu và các phiên khác bị thu hồi khi đổi mật khẩu. Dữ liệu hồ sơ/theme được lưu vào `dbo.AppUser.SettingsJson`.
-- Đăng ký bằng email/mật khẩu cần chạy lần lượt migration `../database/sqlserver-2008/004-email-password-auth.sql` và `../database/sqlserver-2008/005-email-verification-after-registration.sql`. Cấu hình backend nằm trong `backend/VietCalendar.Api/appsettings.Production.json`; backend không đọc file `.env`. Không đặt SMTP secret trong `.env.local` của Expo. File cấu hình Production không được commit và cần được bảo vệ quyền truy cập. Chạy API local trên Windows từ thư mục gốc:
+- Đăng ký bằng email/mật khẩu và dữ liệu tư vấn Thập Trai/Thọ Khang cũng được tạo/cập nhật tự động từ migration và JSON nhúng khi API khởi động. Cấu hình backend nằm trong `backend/VietCalendar.Api/appsettings.Production.json`; backend không đọc file `.env`. Không đặt SMTP secret trong `.env.local` của Expo. File cấu hình Production không được commit và cần được bảo vệ quyền truy cập. Chạy API local trên Windows từ thư mục gốc:
 
   ```powershell
   .\backend\VietCalendar.Api\run-local.ps1

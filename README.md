@@ -40,10 +40,9 @@ Kiểm tra:
 
 Chuỗi kết nối mặc định trong `appsettings.json` dùng SQL Server Express cục bộ với Windows Authentication: `Server=.\SQLEXPRESS;Initial Catalog=VietCalendar;Integrated Security=True;Encrypt=False;TrustServerCertificate=True`. Tạo database và bảng lần đầu bằng:
 
-```powershell
-sqlcmd -S ".\SQLEXPRESS" -E -i database\sqlserver-2008\000-create-database.sql
-sqlcmd -S ".\SQLEXPRESS" -E -d VietCalendar -i database\sqlserver-2008\001-calendar-content.sql
-```
+Khi API khởi động, ứng dụng tự tạo database theo `Initial Catalog` nếu chưa có, sau đó chạy lần lượt các migration `001`–`009` chưa được ghi nhận. Tài khoản SQL Server trong connection string cần quyền `CREATE DATABASE` khi database chưa tồn tại và quyền tạo/cập nhật schema trong database. Nếu database đã tồn tại, API chỉ áp dụng migration còn thiếu. Migration `009` lưu dữ liệu tư vấn âm lịch; API đồng bộ lại nội dung khi hash của file JSON nhúng thay đổi.
+
+Không cần chạy `000-create-database.sql` hoặc các migration thủ công khi khởi động API bình thường. Có thể dùng script `000-create-database.sql` để tạo database trước, sau đó khởi động API bằng connection string trỏ tới database đó.
 
 Trên Windows Server, cấu hình trong `backend\VietCalendar.Api\appsettings.Production.json` và cấp quyền database cho tài khoản chạy dịch vụ/IIS. File chứa secrets không được commit; giới hạn quyền đọc cho tài khoản dịch vụ và quản trị viên. Backend không đọc cấu hình từ `.env`.
 

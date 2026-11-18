@@ -11,6 +11,42 @@ export type GoogleSignInResponse = {
 export type AccountAuthResponse = GoogleSignInResponse & { accessToken: string; hasPassword?: boolean };
 export type EmailAllowlistRule = { id: number; type: 'email' | 'domain'; value: string };
 
+export type LunarAdviceLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+export type LunarAdviceDay = {
+  day: number;
+  level: LunarAdviceLevel;
+  title: string;
+  advice: string;
+};
+export type LunarAdviceTemplate = {
+  badge: string;
+  color_hex: string;
+  short_advice: string;
+  detail: string;
+};
+export type LunarCalendarAdviceDocument = {
+  metadata: {
+    version: string;
+    description: string;
+    short_month_rule: {
+      description: string;
+      base_days: number[];
+      short_month_days: number[];
+    };
+  };
+  common_templates: {
+    THAP_TRAI: LunarAdviceTemplate;
+    TKBG_GENERAL: LunarAdviceTemplate;
+  };
+  months: {
+    month: number;
+    month_name: string;
+    month_theme: string;
+    full_month_advisory?: string;
+    tkbg_days: LunarAdviceDay[];
+  }[];
+};
+
 export type GoogleCalendarAppEvent = {
   id: string;
   summary: string;
@@ -43,6 +79,25 @@ export type GoogleCalendarSyncRequest = {
   deletedEvents: GoogleCalendarDeletedEvent[];
 };
 
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  description: string | null;
+  kind: 'event' | 'reminder';
+  calendarType: 'solar' | 'lunar';
+  year: number;
+  month: number;
+  day: number;
+  recurrence: 'once' | 'yearly';
+  label: string | null;
+  countdown: boolean;
+  sourceEventId: string | null;
+  isSharedCopy: boolean;
+};
+
+export type CalendarEventDraft = Omit<CalendarEvent, 'id' | 'sourceEventId' | 'isSharedCopy'>;
+export type SharedCalendarEvent = { event: CalendarEvent; ownerName: string };
+
 export class AccountApiError extends Error {
   constructor(message: string, readonly status: number) {
     super(message);
@@ -58,6 +113,77 @@ function getApiBaseUrl() {
   return baseUrl;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isNumberArray(value: unknown): value is number[] {
+  return Array.isArray(value) && value.every((item) => Number.isInteger(item));
+}
+
+function isLunarAdviceTemplate(value: unknown): value is LunarAdviceTemplate {
+  return isRecord(value) &&
+    typeof value.badge === 'string' &&
+    typeof value.color_hex === 'string' &&
+    typeof value.short_advice === 'string' &&
+    typeof value.detail === 'string';
+}
+
+function isLunarAdviceDay(value: unknown): value is LunarAdviceDay {
+  return isRecord(value) &&
+    typeof value.day === 'number' &&
+    Number.isInteger(value.day) &&
+    value.day >= 1 &&
+    value.day <= 30 &&
+    (value.level === 'LOW' || value.level === 'MEDIUM' || value.level === 'HIGH') &&
+    typeof value.title === 'string' &&
+    typeof value.advice === 'string';
+}
+
+function isLunarAdviceMonth(value: unknown): value is LunarCalendarAdviceDocument['months'][number] {
+  return isRecord(value) &&
+    typeof value.month === 'number' &&
+    Number.isInteger(value.month) &&
+    value.month >= 1 &&
+    value.month <= 12 &&
+    typeof value.month_name === 'string' &&
+    typeof value.month_theme === 'string' &&
+    (value.full_month_advisory === undefined || typeof value.full_month_advisory === 'string') &&
+    Array.isArray(value.tkbg_days) &&
+    value.tkbg_days.every(isLunarAdviceDay) &&
+    new Set(value.tkbg_days.map((day) => day.day)).size === value.tkbg_days.length;
+}
+
+function isLunarCalendarAdviceDocument(value: unknown): value is LunarCalendarAdviceDocument {
+  if (!isRecord(value)) return false;
+  if (
+    !isRecord(value.metadata) ||
+    typeof value.metadata.version !== 'string' ||
+    typeof value.metadata.description !== 'string' ||
+    !isRecord(value.metadata.short_month_rule) ||
+    typeof value.metadata.short_month_rule.description !== 'string' ||
+    !isNumberArray(value.metadata.short_month_rule.base_days) ||
+    !isNumberArray(value.metadata.short_month_rule.short_month_days) ||
+    !isRecord(value.common_templates) ||
+    !isLunarAdviceTemplate(value.common_templates.THAP_TRAI) ||
+    !isLunarAdviceTemplate(value.common_templates.TKBG_GENERAL) ||
+    !Array.isArray(value.months) ||
+    value.months.length !== 12 ||
+    !value.months.every(isLunarAdviceMonth) ||
+    new Set(value.months.map((month) => month.month)).size !== 12 ||
+    !value.months.every((month) => month.month >= 1 && month.month <= 12)
+  ) return false;
+
+  return true;
+}
+
+export function parseLunarCalendarAdvice(value: unknown): LunarCalendarAdviceDocument {
+  if (!isLunarCalendarAdviceDocument(value)) {
+    throw new Error('Dữ liệu Thập Trai và Thọ Khang từ máy chủ không đúng định dạng.');
+  }
+  return value;
+}
+
 async function ensureSuccess(response: Response) {
   if (response.ok) return;
 
@@ -69,6 +195,12 @@ async function ensureSuccess(response: Response) {
     // Keep the HTTP status message when the server does not return problem details.
   }
   throw new AccountApiError(message, response.status);
+}
+
+export async function getLunarCalendarAdvice(): Promise<LunarCalendarAdviceDocument> {
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/content/lunar-advice`);
+  await ensureSuccess(response);
+  return parseLunarCalendarAdvice(await response.json() as unknown);
 }
 
 export async function signInWithGoogleToken(idToken: string): Promise<GoogleSignInResponse> {
@@ -252,4 +384,110 @@ export async function syncGoogleCalendar(
   await ensureSuccess(response);
   const body = await response.json() as { events: GoogleCalendarEvent[] };
   return body.events;
+}
+
+export async function getCalendarEvents(token: string): Promise<CalendarEvent[]> {
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/calendar/events`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  await ensureSuccess(response);
+  return await response.json() as CalendarEvent[];
+}
+
+export async function createCalendarEvent(
+  token: string,
+  event: CalendarEventDraft & { id: string },
+): Promise<CalendarEvent> {
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/calendar/events`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(event),
+  });
+  await ensureSuccess(response);
+  return await response.json() as CalendarEvent;
+}
+
+export async function updateCalendarEvent(
+  token: string,
+  id: string,
+  event: CalendarEventDraft & { updateSharedCopies: boolean },
+): Promise<CalendarEvent> {
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/calendar/events/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(event),
+  });
+  await ensureSuccess(response);
+  return await response.json() as CalendarEvent;
+}
+
+export async function deleteCalendarEvent(token: string, id: string): Promise<void> {
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/calendar/events/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  await ensureSuccess(response);
+}
+
+export async function createCalendarEventShareLink(token: string, id: string): Promise<string> {
+  const response = await fetch(
+    `${getApiBaseUrl()}/api/v1/calendar/events/${encodeURIComponent(id)}/share-link`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  await ensureSuccess(response);
+  const body = await response.json() as { token: string };
+  return body.token;
+}
+
+export async function inviteCalendarEventUser(
+  token: string,
+  id: string,
+  identifier: string,
+): Promise<CalendarEvent> {
+  const response = await fetch(
+    `${getApiBaseUrl()}/api/v1/calendar/events/${encodeURIComponent(id)}/invite`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ identifier }),
+    },
+  );
+  await ensureSuccess(response);
+  return await response.json() as CalendarEvent;
+}
+
+export async function getSharedCalendarEvent(token: string): Promise<SharedCalendarEvent> {
+  const response = await fetch(
+    `${getApiBaseUrl()}/api/v1/shared-events/${encodeURIComponent(token)}`,
+  );
+  await ensureSuccess(response);
+  return await response.json() as SharedCalendarEvent;
+}
+
+export async function importSharedCalendarEvent(
+  token: string,
+  shareToken: string,
+): Promise<CalendarEvent> {
+  const response = await fetch(
+    `${getApiBaseUrl()}/api/v1/shared-events/${encodeURIComponent(shareToken)}/import`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  await ensureSuccess(response);
+  const body = await response.json() as { event: CalendarEvent; alreadyImported: boolean };
+  return body.event;
 }

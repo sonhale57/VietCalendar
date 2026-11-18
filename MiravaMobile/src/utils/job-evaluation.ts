@@ -1,4 +1,5 @@
 import type { BirthProfile } from '@/utils/birth-profile';
+import type { LunarCalendarAdviceDocument } from '@/services/account-api';
 import { getDailyAlmanac } from '@/utils/daily-almanac';
 import {
   ELEMENT_KHAC,
@@ -76,6 +77,7 @@ export function evaluateDayForJob(
   date: Date,
   jobCode: string,
   profile: EvaluationProfile | null = null,
+  lunarAdvice?: LunarCalendarAdviceDocument | null,
 ): DayEvaluationResult {
   const job = JOB_CATEGORIES[jobCode];
   if (!job) throw new Error(`Không tìm thấy danh mục công việc "${jobCode}".`);
@@ -98,6 +100,8 @@ export function evaluateDayForJob(
     lunar.month,
     lunar.isLeapMonth,
     getVietnameseLunarMonthLength(targetDate) === 29,
+    [],
+    lunarAdvice,
   );
   const jobFitScore = isTrucGood ? 15 : isTrucBad ? -15 : 5;
   // The baseline fills the 40-point job scale and allows the specified 90+ harmony case.
@@ -185,6 +189,7 @@ export function findGoodDaysForJob(
   to: Date,
   jobCode: string,
   profile: EvaluationProfile | null = null,
+  lunarAdvice?: LunarCalendarAdviceDocument | null,
 ): DayEvaluationResult[] {
   const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
   const end = new Date(to.getFullYear(), to.getMonth(), to.getDate());
@@ -193,7 +198,7 @@ export function findGoodDaysForJob(
 
   const results: DayEvaluationResult[] = [];
   for (const date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-    results.push(evaluateDayForJob(date, jobCode, profile));
+    results.push(evaluateDayForJob(date, jobCode, profile, lunarAdvice));
   }
   return results
     .filter((result) => result.score >= 50 && !result.isConflictAge)
